@@ -59,6 +59,32 @@ void setup() {
 
 void loop() {
   
+    manualControl();
+    
+    //timeControl();
+    
+    paintDisplay();
+
+    
+   
+  
+} // END LOOP  
+  
+// Paints the Variables and text to the 
+// LED Screen.
+void paintDisplay() {
+    lcd.clear();
+    lcd.print(powerText);
+    lcd.setCursor(0, 1);
+    lcd.print(directionText);  
+}
+
+
+// Door opens/closes based on time
+
+// Manual Control Functionality
+void manualControl() {
+  
   isPowerPressed = digitalRead(powerPin);
   isDirectionPressed = digitalRead(directionPin);
   
@@ -87,67 +113,24 @@ void loop() {
      if(reverse) {
        digitalWrite(in1Pin, LOW);
        digitalWrite(in2Pin, HIGH);
-       directionText = "Going Up";
+       directionText = "Up";
      } else {
        digitalWrite(in1Pin, HIGH);
        digitalWrite(in2Pin, LOW);
-       directionText = "Going Down";
+       directionText = "Down";
      }  
        
     }
     // Stop the code so we can debounce
     // the button.
-    lcd.clear();
-    lcd.print(powerText);
-    lcd.setCursor(0, 1);
-    lcd.print(directionText); 
-    delay(delayTime);
+    delay(delayTime); 
     
-    // Reset Button Variables
+     // Reset Button Variables
     isPowerPressed = true;
     isDirectionPressed = true;
   } // END POWER OR DIRECTION PRESSED
   
-} // END LOOP  
-    // Reverse 
-    /* // Uncomment this to go up/down
-    digitalWrite(in1Pin, motorStopped);
-    digitalWrite(in2Pin, !motorStopped);
-    lcd.clear();
-    if(motorStopped) {
-      lcd.print("Door goes up");
-    } else {
-      lcd.print("Door goes down");
-    }
-    
-    // Stop the code so we can debounce
-    // the button.
-    delay(2000);
-    */  // Uncomment this to go up/down;
-
- 
-  //set up the LCD's number of columns and rows:
- 
- 
- //pinMode(motorPin, OUTPUT);
- //pinMode(ledPin, OUTPUT);
- 
- 
-  //if (Serial.available()) {
-
-   //digitalWrite(ledPin, LOW);
-   
-   //int speed = Serial.parseInt();
-   
-   //if (speed == 25) {
-    //digitalWrite(ledPin, HIGH); 
-   //}
-  // if (speed >= 0 && speed <= 255) {
-    //    Serial.print("Speed: ");
-      //  Serial.println(speed);
-        //analogWrite(motorPin, speed); 
-   //}
- //} 
+}
 
 
 // Initialize the LCD Screen
@@ -167,12 +150,12 @@ void lcdGreeting()
    Serial.println("lcd Greeting");
    lcd.clear();
    lcd.print("Hello Natty :)"); 
-   delay(3000); 
+   delay(2000); 
    lcd.clear();
    lcd.print("The chicken door");
    lcd.setCursor(0, 1);
    lcd.print("is ready.");
-   delay(2000);
+   delay(1500);
 }
 
 // Display the times the door will
