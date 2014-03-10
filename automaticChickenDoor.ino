@@ -27,11 +27,11 @@ int doorClosed = false;
 int modeSet = false;
 
 // Time Settings
-int upHour = 15;
-int upMinute = 49;
-int downHour = 15;
-int downMinute = 51;
-int isDoorOpen = false;
+int upHour = 8;
+int upMinute = 00;
+int downHour = 19;
+int downMinute = 00;
+int isDoorOpen = true;
 int isDoorMoving = false;
 int acd_timeSet = false;
 
@@ -109,26 +109,20 @@ void loop() {
   
   } else if(mode == 3) {
     if(!acd_timeSet) {
-      lcd.clear();
-      lcd.print("Init.. Prod Mode");
+      if(!modeSet) {
+        lcd.clear();
+        lcd.print("Init.. Prod Mode");
+      }
+      if(!modeSet) {
+        modeSet = true;
+      }
       delay(1000);
     }
     productionMode();
 
   } else {
-    chooseMode();
-    //doTimeTest();
-    //miniSwitchTest();
+    chooseMode(); 
   }
-    //manualControl();
-    
-    //timeControl();
-   // fixedTimeMovements();
-   
-   // ### This tests the pressure switch
-   //miniSwitchTest();
-
-
   
 } // END LOOP  
 
@@ -156,15 +150,17 @@ void productionMode() {
         lcd.print("Time Sync");
         lcd.setCursor(0, 1);
         lcd.print("Required");
-        delay(3000);
+        delay(2000);
     } else {
         lcd.clear();
 
         // Print the current time on line 1
         lcd.print("Current: ");
         lcd.print(hour());
-        lcd.print(":");
-        lcd.print(minute());
+        printDigits(minute());
+        //lcd.print(":");
+        //lcd.print(minute());
+        
 
         // Print the next Trigger Time on line 2
         lcd.setCursor(0, 1);
@@ -175,8 +171,11 @@ void productionMode() {
             lcd.print("Down at ");
 
             lcd.print(downHour);
-            lcd.print(":");
-            lcd.print(downMinute);
+            //lcd.print(":");
+            //lcd.print(downMinute);
+            printDigits(downMinute);
+            }
+
             
             // If the current time is equal
             // to the time set for closing the door, let's
@@ -232,12 +231,13 @@ void productionMode() {
         
         // START - SECTION - OPENING DOOR
         
-        else {
+        } else {
           
          lcd.print("Up at: ");
          lcd.print(upHour);
-         lcd.print(":");
-         lcd.print(upMinute);
+         //lcd.print(":");
+         //lcd.print(upMinute);
+         printDigits(upMinute);
          
          // If the time is equal to the set time
          // for opening the door, let's do that.
