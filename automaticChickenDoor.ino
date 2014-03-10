@@ -174,7 +174,7 @@ void productionMode() {
             //lcd.print(":");
             //lcd.print(downMinute);
             printDigits(downMinute);
-            }
+            
 
             
             // If the current time is equal
@@ -231,7 +231,7 @@ void productionMode() {
         
         // START - SECTION - OPENING DOOR
         
-        } else {
+        else {
           
          lcd.print("Up at: ");
          lcd.print(upHour);
