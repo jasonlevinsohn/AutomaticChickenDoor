@@ -101,13 +101,8 @@ void loop() {
     }
 
     manualControl();  
-  } else if (mode == 2) {
-    lcd.clear();
-    lcd.print("Init.. Test Mode");
-    delay(1000);
-    fixedTimeMovements();
   
-  } else if(mode == 3) {
+  } else if(mode == 2) {
     if(!acd_timeSet) {
       if(!modeSet) {
         lcd.clear();
@@ -127,6 +122,8 @@ void loop() {
 } // END LOOP  
 
 void productionMode() {
+  // Once we are in this loop, we want to stay here
+  while(true) {
     // Vars to use are: upTime, upHour, upMinute, downHour, 
     // downMinute, isDoorOpen
     
@@ -176,28 +173,36 @@ void productionMode() {
             printDigits(downMinute);
             
 
+            //Test for manual override
+            isPowerPressed = digitalRead(powerPin);
             
             // If the current time is equal
             // to the time set for closing the door, let's
             // do that.
             if(hour() == downHour && minute() == downMinute) {
               
-              // Set the door to move down on the L293D IC
-              digitalWrite(in1Pin, HIGH);
-              digitalWrite(in2Pin, LOW);
-              
-              // Turn on the motor
-              // &&&&&&&&& UNCOMMNET THIS CODE AFTER &&&&&&&&&
-              // &&&&&&&&& SWITCH IS CONFIRMED WORKING &&&&&&&
-              digitalWrite(enablePin, 255);
-              
               isDoorMoving = true;
               
+            } else if (!isPowerPressed) {
+              isDoorMoving = true;
+              lcd.clear();
+              lcd.print("Manual Override");
+              lcd.print("Close Door in 3s");
+              delay(3000);
             }
             
             if(isDoorMoving) {
+                // Set the door to move down on the L293D IC
+                digitalWrite(in1Pin, HIGH);
+                digitalWrite(in2Pin, LOW);
+              
+                // Turn on the motor
+                // &&&&&&&&& UNCOMMNET THIS CODE AFTER &&&&&&&&&
+                // &&&&&&&&& SWITCH IS CONFIRMED WORKING &&&&&&&
+                digitalWrite(enablePin, 255);
                 lcd.clear();
                 lcd.print("Door Closing...");
+                
                 miniSwitchValue = digitalRead(miniSwitchPin);
                 
                 
@@ -220,6 +225,7 @@ void productionMode() {
                 digitalWrite(enablePin, 0);
                 isDoorMoving = false;
                 isDoorOpen = false;
+                isPowerPressed = true;
                 
                 // Let the door closed message display for a
                 // second.
@@ -283,7 +289,7 @@ void productionMode() {
     }
     
     delay(3000);
-
+  } // END - while(true) loop to stay in Prod Mode
 }
 
   
@@ -535,12 +541,10 @@ void chooseMode () {
  lcd.clear();
  lcd.print("Choose Mode: ");
  lcd.setCursor(0, 1);
- lcd.print("1-M | 2-T | 3-P");
+ lcd.print("1-M | 2-P");
  
  if (mode == 0) {
-   if (!digitalRead(powerPin) && !digitalRead(directionPin)) {
-     mode = 3;
-   } else if (!digitalRead(powerPin)) {
+   if (!digitalRead(powerPin)) {
      mode = 2;
    } else if (!digitalRead(directionPin)) {
      mode = 1;  
