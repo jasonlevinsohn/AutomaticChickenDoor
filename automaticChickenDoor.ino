@@ -4,6 +4,9 @@ Automatic Chicken Coop Door
 #include <LiquidCrystal.h>
 #include <Time.h>
 
+// Low Power consumption library
+#include <Narcoleptic.h>
+
 // Time Settings
 #define TIME_MSG_LEN 11 // time sync is HEADER followed by Unix time_t as 10 ASCII digits
 #define TIME_HEADER 'T'
@@ -151,6 +154,36 @@ void productionMode() {
     } else {
         lcd.clear();
 
+         //########## SLEEP EXPERIMENT - BEGIN ############  
+         // If the current time is NOT an (hour and 2 hours) before or 10 minutes after the time
+         // the door is going to close.  Let's sleep.  We want NattyP to be able to 
+         // do a manual override in the hour(s) before the door closes.  We don't want
+         // her to worry that it didn't work.
+         if(!(hour() == downHour && minute() < 10) || (!(hour() == (downHour - 1)) || !(hour() == (downHour - 2)))) {
+           Narcoleptic.delay(8000);
+           // For testing purposes, we will mark the display here so we know its working.
+           // ND - Narcoleptic Down
+           lcd.setCursor(14, 1);
+           lcd.print("ND");
+           delay(1000);   
+           lcd.setCursor(0, 0);
+         }
+         
+         // We also want to sleep if not close to the couple of minutes before 
+         // and after the time we open the door.
+         if(!(hour() == (upHour - 1) && minute() > 50) || !(hour() == upHour && minute() < 10)) { 
+           Narcoleptic.delay(8000);
+           // For testing purposes, we will mark the display here so we know its working.
+           // NU - Narcoleptic Up
+           lcd.setCursor(14, 1);
+           lcd.print("NU");
+           delay(1000);
+           lcd.setCursor(0, 0);
+         } 
+         
+            
+         //########## SLEEP EXPERIMENT - END ############  
+
         // Print the current time on line 1
         lcd.print("Current: ");
         lcd.print(hour());
@@ -187,6 +220,7 @@ void productionMode() {
               isDoorMoving = true;
               lcd.clear();
               lcd.print("Manual Override");
+              lcd.setCursor(0, 1);
               lcd.print("Close Door in 3s");
               delay(3000);
             }
@@ -197,8 +231,6 @@ void productionMode() {
                 digitalWrite(in2Pin, LOW);
               
                 // Turn on the motor
-                // &&&&&&&&& UNCOMMNET THIS CODE AFTER &&&&&&&&&
-                // &&&&&&&&& SWITCH IS CONFIRMED WORKING &&&&&&&
                 digitalWrite(enablePin, 255);
                 lcd.clear();
                 lcd.print("Door Closing...");
@@ -527,13 +559,15 @@ void displayOpenCloseTimes() {
    lcd.clear();
    lcd.print("Open: ");
    lcd.print(upHour);
-   lcd.print(":");
-   lcd.print(upMinute);
+   //lcd.print(":");
+   //lcd.print(upMinute);
+   printDigits(upMinute);
    lcd.setCursor(0, 1);
    lcd.print("Close: ");
    lcd.print(downHour);
-   lcd.print(":");
-   lcd.print(downMinute);
+   printDigits(downMinute);
+   //lcd.print(":");
+   //lcd.print(downMinute);
    delay(2000);
 }
 
@@ -612,8 +646,10 @@ void processSyncMessage() {
      }
      
      // Sync Arduino clock to the time received on the serial port
-     // We use 18000 to offset the GMT to our own EST (-5)
-     setTime(pctime - 18000);
+     // We use EST to offset the GMT to our own EST (-5)
+     int EST = 60 * 60 * 5; //offset 18000 seconds or -5 hours.
+     int ESTDST = 60 * 60 * 4; //offset 14400 seconds or -4 hours.
+     setTime(pctime - ESTDST);
     }
   }
 }
