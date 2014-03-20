@@ -159,28 +159,56 @@ void productionMode() {
          // the door is going to close.  Let's sleep.  We want NattyP to be able to 
          // do a manual override in the hour(s) before the door closes.  We don't want
          // her to worry that it didn't work.
-         if(!(hour() == downHour && minute() < 10) || (!(hour() == (downHour - 1)) || !(hour() == (downHour - 2)))) {
-           Narcoleptic.delay(8000);
-           // For testing purposes, we will mark the display here so we know its working.
-           // ND - Narcoleptic Down
-           lcd.setCursor(14, 1);
-           lcd.print("ND");
-           delay(1000);   
-           lcd.setCursor(0, 0);
-         }
+//         if(!(hour() == downHour && minute() < 10) || (!(hour() == (downHour - 1)) || !(hour() == (downHour - 2)))) {
+//           Narcoleptic.delay(8000);
+//           // For testing purposes, we will mark the display here so we know its working.
+//           // ND - Narcoleptic Down
+//           lcd.setCursor(14, 1);
+//           lcd.print("ND");
+//           delay(1000);   
+//           lcd.setCursor(0, 0);
+//         }
          
          // We also want to sleep if not close to the couple of minutes before 
          // and after the time we open the door.
-         if(!(hour() == (upHour - 1) && minute() > 50) || !(hour() == upHour && minute() < 10)) { 
-           Narcoleptic.delay(8000);
-           // For testing purposes, we will mark the display here so we know its working.
-           // NU - Narcoleptic Up
-           lcd.setCursor(14, 1);
-           lcd.print("NU");
-           delay(1000);
-           lcd.setCursor(0, 0);
-         } 
+//         else if(!(hour() == (upHour - 1) && minute() > 50) || !(hour() == upHour && minute() < 10)) { 
+//           Narcoleptic.delay(8000);
+//           // For testing purposes, we will mark the display here so we know its working.
+//           // NU - Narcoleptic Up
+//           lcd.setCursor(14, 1);
+//           lcd.print("NU");
+//           delay(1000);
+//           lcd.setCursor(0, 0);
+//         } 
          
+         // Testing for what it is, is much easier than testing for what its not.  Let's try that.
+         // Let's go Narcoleptic if:
+         // 1. If the hour is less than upHour - 1
+         // 2. If the hour is upHour - 1 and minute is less than 50.
+         // 3. If the hour is upHour and minute is greater than 10.
+         // 4. If the hour is greater than upHour and less than downHour - 2.
+         // 5. If the hour is downHour and minute is greater than 10.
+         // 6. If the hour is greater than downHour
+         if((hour() < (upHour - 1)) || // 1
+            ((hour() == (upHour - 1)) && minute() < 50) || // 2
+            (hour() == upHour && minute() > 10) || // 3
+            (hour() > upHour && (hour() < (downHour - 2))) || // 4
+            (hour() == downHour && minute() > 10) || // 5
+            (hour() > downHour)
+             
+            ) {
+               Narcoleptic.delay(8000);
+               // For testing purposes, we will mark the display here so we know its working.
+               // NARC 
+               lcd.setCursor(12, 1);
+               lcd.print("NARC");
+               delay(1000);
+               lcd.setCursor(0, 0);
+            }
+           
+         
+         
+      
             
          //########## SLEEP EXPERIMENT - END ############  
 
