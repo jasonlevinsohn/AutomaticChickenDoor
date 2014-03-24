@@ -12,6 +12,10 @@ Automatic Chicken Coop Door
 #define TIME_HEADER 'T'
 #define TIME_REQUEST 7
 
+int EST = 60 * 60 * 5; //offset 18000 seconds or -5 hours.
+int ESTDST = 60 * 60 * 4; //offset 14400 seconds or -4 hours.
+int savedTime = 0;
+
 
 // initialize the LCD library
 LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
@@ -130,6 +134,7 @@ void productionMode() {
     // Vars to use are: upTime, upHour, upMinute, downHour, 
     // downMinute, isDoorOpen
     
+
     // Check to see if the time is set. If
     // it is not. We need to do that first
     // before continuing.
@@ -197,7 +202,12 @@ void productionMode() {
             (hour() > downHour)
              
             ) {
+               // Narcoleptic turns off virtually everything.  Even
+               // the timer. We have to fast forward the time using
+               // Narcoleptics millis function.
+               savedTime = now();
                Narcoleptic.delay(8000);
+               setTime(savedTime + Narcoleptic.millis());
                // For testing purposes, we will mark the display here so we know its working.
                // NARC 
                lcd.setCursor(12, 1);
@@ -675,8 +685,6 @@ void processSyncMessage() {
      
      // Sync Arduino clock to the time received on the serial port
      // We use EST to offset the GMT to our own EST (-5)
-     int EST = 60 * 60 * 5; //offset 18000 seconds or -5 hours.
-     int ESTDST = 60 * 60 * 4; //offset 14400 seconds or -4 hours.
      setTime(pctime - ESTDST);
     }
   }
