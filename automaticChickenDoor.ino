@@ -5,12 +5,16 @@ Automatic Chicken Coop Door
 #include <Time.h>
 
 // Low Power consumption library
-#include <Narcoleptic.h>
+// #include <Narcoleptic.h>
+#include <LowPower.h>
 
 // Time Settings
 #define TIME_MSG_LEN 11 // time sync is HEADER followed by Unix time_t as 10 ASCII digits
 #define TIME_HEADER 'T'
 #define TIME_REQUEST 7
+
+// DEBUG SETTINGS
+int upTime = 25000;
 
 int EST = 60 * 60 * 5; //offset 18000 seconds or -5 hours.
 int ESTDST = 60 * 60 * 4; //offset 14400 seconds or -4 hours.
@@ -34,19 +38,24 @@ int doorClosed = false;
 int modeSet = false;
 
 // Time Settings
-int upHour = 8;
+
+// %%%%%%%%  USEFUL SETTINGS %%%%%%%%
+int upHour = 7;
 int upMinute = 00;
-int downHour = 19;
-int downMinute = 00;
+int downHour = 14;
+int downMinute = 20;
 int isDoorOpen = true;
+// %%%%%%%%  USEFUL SETTINGS %%%%%%%%
+
 int isDoorMoving = false;
 int acd_timeSet = false;
 
 // Seconds to move up and down.
-int upTime = 20000;
+
 int downTime = 18000;
 String upTimeText = "Up for 20"; 
 String downTimeText = "Down for 18";
+int timeSynced = false;
 
 
 
@@ -138,11 +147,12 @@ void productionMode() {
     // Check to see if the time is set. If
     // it is not. We need to do that first
     // before continuing.
-    if (Serial.available()) {
+    if (Serial.available() && !timeSynced) {
         processSyncMessage();
         lcd.clear();
         lcd.print("Time is synced");
         Serial.println("Time is synced");
+        timeSynced = true;
         acd_timeSet = true;
         delay(3000);
     }
@@ -205,13 +215,15 @@ void productionMode() {
                // Narcoleptic turns off virtually everything.  Even
                // the timer. We have to fast forward the time using
                // Narcoleptics millis function.
-               savedTime = now();
-               Narcoleptic.delay(8000);
-               setTime(savedTime + Narcoleptic.millis());
+               //savedTime = now();
+               //Narcoleptic.delay(8000);
+               //setTime(savedTime + Narcoleptic.millis());
                // For testing purposes, we will mark the display here so we know its working.
                // NARC 
+               // DEBUG
+               LowPower.idle(SLEEP_4S, ADC_OFF, TIMER2_OFF, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_ON);
                lcd.setCursor(12, 1);
-               lcd.print("NARC");
+               lcd.print("LOW");
                delay(1000);
                lcd.setCursor(0, 0);
             }
@@ -274,8 +286,6 @@ void productionMode() {
                 lcd.print("Door Closing...");
                 
                 miniSwitchValue = digitalRead(miniSwitchPin);
-                
-                
                 
                 // This loop should continue to run until the
                 // switch has been triggered and then leave.
@@ -687,6 +697,7 @@ void processSyncMessage() {
      // We use EST to offset the GMT to our own EST (-5)
      setTime(pctime - ESTDST);
     }
+    
   }
 }
 
