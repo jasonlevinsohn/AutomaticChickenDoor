@@ -14,7 +14,21 @@ Automatic Chicken Coop Door
 #define TIME_REQUEST 7
 
 // DEBUG SETTINGS
-int upTime = 25000;
+// Seconds to move up and down.
+int upTime = 20000;
+int downTime = 18000;  //NOT USED
+String upTimeText = "Up for 20"; 
+String downTimeText = "Down for 18";
+
+
+// %%%%%%%%  USEFUL SETTINGS %%%%%%%%
+int upHour = 17;
+int upMinute = 46;
+int downHour = 19;
+int downMinute = 05;
+int isDoorOpen = false;
+// %%%%%%%%  USEFUL SETTINGS %%%%%%%%
+
 
 int EST = 60 * 60 * 5; //offset 18000 seconds or -5 hours.
 int ESTDST = 60 * 60 * 4; //offset 14400 seconds or -4 hours.
@@ -34,27 +48,17 @@ int miniSwitchPin = 13;
 int delayTime = 1000;
 int miniSwitchValue = 0;
 int mode = 0;
-int doorClosed = false;
 int modeSet = false;
+int doorClosed = false;
 
 // Time Settings
 
-// %%%%%%%%  USEFUL SETTINGS %%%%%%%%
-int upHour = 7;
-int upMinute = 00;
-int downHour = 14;
-int downMinute = 20;
-int isDoorOpen = true;
-// %%%%%%%%  USEFUL SETTINGS %%%%%%%%
+
 
 int isDoorMoving = false;
 int acd_timeSet = false;
 
-// Seconds to move up and down.
 
-int downTime = 18000;
-String upTimeText = "Up for 20"; 
-String downTimeText = "Down for 18";
 int timeSynced = false;
 
 
@@ -198,18 +202,29 @@ void productionMode() {
          
          // Testing for what it is, is much easier than testing for what its not.  Let's try that.
          // Let's go Narcoleptic if:
-         // 1. If the hour is less than upHour - 1
+         // 1. If the hour is less than upHour - 2
          // 2. If the hour is upHour - 1 and minute is less than 50.
-         // 3. If the hour is upHour and minute is greater than 10.
+         // 3. If the hour is upHour and minute is less than 3 or greater than 3.
          // 4. If the hour is greater than upHour and less than downHour - 2.
-         // 5. If the hour is downHour and minute is greater than 10.
-         // 6. If the hour is greater than downHour
+         // 5. If the hour is downHour - 1 and minute is less than 50.
+         // 6. If the hour is downHour and minute is less than 3 or greater than 3.
+         // 7. If the hour is greater than downHour
+         Serial.print("UpMinute ");
+         Serial.println((upMinute - 3));
+         Serial.print("Minute ");
+         Serial.println(minute());
+         Serial.print("is Minute less than up minute: ");
+         Serial.println(minute() < (upMinute - 3));
+         Serial.print("Is 3 true: ");
+         Serial.println(((hour() == upHour) && ((minute() < (upMinute - 3)) || (minute() > (upMinute + 3)))));
+         Serial.println("----------");
          if((hour() < (upHour - 1)) || // 1
-            ((hour() == (upHour - 1)) && minute() < 50) || // 2
-            (hour() == upHour && minute() > 10) || // 3
+            //((hour() == (upHour - 1)) && (minute() < (upMinute - 3))) || // 2
+            ((hour() == upHour) && ((minute() < (upMinute - 3)) || (minute() > (upMinute + 3)))) || // 3
             (hour() > upHour && (hour() < (downHour - 2))) || // 4
-            (hour() == downHour && minute() > 10) || // 5
-            (hour() > downHour)
+            //((hour() == (downHour - 1)) && (minute() < (downMinute - 3))) || //5
+            (hour() == downHour && ((minute() < (downMinute - 3)) || (minute() > (downMinute + 3)))) || // 6
+            (hour() > downHour) // 7
              
             ) {
                // Narcoleptic turns off virtually everything.  Even
@@ -221,7 +236,7 @@ void productionMode() {
                // For testing purposes, we will mark the display here so we know its working.
                // NARC 
                // DEBUG
-               LowPower.idle(SLEEP_4S, ADC_OFF, TIMER2_OFF, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_ON);
+               LowPower.idle(SLEEP_4S, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_ON, SPI_ON, USART0_ON, TWI_ON);
                lcd.setCursor(12, 1);
                lcd.print("LOW");
                delay(1000);
@@ -289,6 +304,7 @@ void productionMode() {
                 
                 // This loop should continue to run until the
                 // switch has been triggered and then leave.
+                int testOne = 0;
                 while(miniSwitchValue) {
                   
                   miniSwitchValue = digitalRead(miniSwitchPin);
@@ -296,6 +312,9 @@ void productionMode() {
                   // We can slow it down to 100 cycles per second
                   // instead of 1000.
                   delay(100);
+                  lcd.print("Down Test");
+                  lcd.print(testOne);
+                  testOne++;
                 }
                 
                 lcd.clear();
