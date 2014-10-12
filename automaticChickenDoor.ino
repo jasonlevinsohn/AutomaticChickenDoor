@@ -22,10 +22,10 @@ String downTimeText = "Down for 18";
 
 
 // %%%%%%%%  USEFUL SETTINGS %%%%%%%%
-int upHour = 17;
-int upMinute = 46;
-int downHour = 19;
-int downMinute = 05;
+int upHour = 14;
+int upMinute = 40;
+int downHour = 14;
+int downMinute = 50;
 int isDoorOpen = false;
 // %%%%%%%%  USEFUL SETTINGS %%%%%%%%
 
@@ -221,13 +221,13 @@ void productionMode() {
          if((hour() < (upHour - 1)) || // 1
             //((hour() == (upHour - 1)) && (minute() < (upMinute - 3))) || // 2
             ((hour() == upHour) && ((minute() < (upMinute - 3)) || (minute() > (upMinute + 3)))) || // 3
-            (hour() > upHour && (hour() < (downHour - 2))) || // 4
+            (hour() > upHour && (hour() < (downHour - 2))) || // 4  When later than upHour but, earlier than downHour - 2
             //((hour() == (downHour - 1)) && (minute() < (downMinute - 3))) || //5
             (hour() == downHour && ((minute() < (downMinute - 3)) || (minute() > (downMinute + 3)))) || // 6
             (hour() > downHour) // 7
              
             ) {
-               // Narcoleptic turns off virtually everything.  Even
+               // Narcoleptic turns off  virtually everything.  Even
                // the timer. We have to fast forward the time using
                // Narcoleptics millis function.
                //savedTime = now();
