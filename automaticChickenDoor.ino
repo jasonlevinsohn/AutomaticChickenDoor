@@ -4,6 +4,10 @@ Automatic Chicken Coop Door
 #include <LiquidCrystal.h>
 #include <Time.h>
 
+// Ellapsed Time with out stopping
+// the processor.
+#include <ellapsedMillis.h>
+
 // Low Power consumption library
 // #include <Narcoleptic.h>
 #include <LowPower.h>
@@ -304,17 +308,41 @@ void productionMode() {
                 
                 // This loop should continue to run until the
                 // switch has been triggered and then leave.
-                int testOne = 0;
+                
+                long elapsedTime = 0;
+                int elapsedTimeInSec = 0;
+                long startTime = 0;
+                
+                startTime = millis();
+                
                 while(miniSwitchValue) {
                   
                   miniSwitchValue = digitalRead(miniSwitchPin);
                   
-                  // We can slow it down to 100 cycles per second
+                  // We can slow it down to 200 cycles per second
                   // instead of 1000.
-                  delay(100);
-                  lcd.print("Down Test");
-                  lcd.print(testOne);
-                  testOne++;
+                  delay(200);
+                  
+                  // We can't rely on a hardware switch.  If the
+                  // switch has not been triggered in 30 seconds.
+                  // Trigger it.
+                  elapsedTime = millis() - startTime;
+                  elapsedTimeInSec = (int)(elapsedTime / 1000L);
+                  
+                  // Print Elapsed Time
+                  lcd.clear();
+                  lcd.print("Closing Time");
+                  lcd.setCursor(0, 1);
+                  lcd.print(elapsedTimeInSec);
+                  
+                  if (elapsedTimeInSec > 30) {
+                    miniSwitchValue = false;
+                    lcd.clear();
+                    lcd.print("Switch never triggered");
+                    lcd.setCursor(0, 1);
+                    lcd.print("Overriding....");
+                    delay(2000);
+                  }
                 }
                 
                 lcd.clear();
